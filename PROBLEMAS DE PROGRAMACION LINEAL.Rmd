@@ -1,0 +1,679 @@
+---
+title: "Problemas de PROGRAMACIÓN LINEAL"
+author: "DIMAS"
+date: "22/10/2020"
+output:
+  html_document: default
+  pdf_document: default
+editor_options:
+  chunk_output_type: console
+---
+___FACULTAD DE INGENIERÍA___
+__*Ejemplo1*__
+
+El dueño de un camión de $10 [Ton]$ de capacidad requiere planificar el transporte de su carga, de tal forma que maximice sus ingresos. A continuación se presentan las diferentes cargas posibles y el ingreso por concepto de flete que generarían.
+
+
+```{r echo=FALSE}
+MATERIAL <- c("Peso", "Ingreso")
+Naranjas <- c(2500, 450)
+Pepinos <- c(1800, 370)
+Melones <- c(2100, 280)
+Sandias <- c(1850, 320)
+Nueces <- c(1650, 410)
+Zanahorias <- c(2100,500)
+
+Tabla1 <- data.frame(rbind(MATERIAL, Naranjas, Pepinos, Melones, Sandias, Nueces, Zanahorias))
+Tabla1
+
+#matrizz <- matrix(c("MATERIAL", "PESO [KG]", "INGRESOS [$]", "Naranjas", 2500, 450, "Pepinos", 1800, 370, "Melones", 2100, 280, "Sandías", 1850, 320, "Nueces", 1650, 410, "Zanahorias", 2100, 550), nrow=7, ncol=3, byrow = TRUE)
+#matrizz
+```
+
+
+
+¿Cuál sería la manera de cargar el camión? Cabe señalar que no puede llevarse algún material en fracciones, es decir, se acarrea todo el material o no se acarrea nada del mismo. 
+
+
+___Variales de decisioón___
+
+$x_1=Naranjas$, $x_2=Pepinos$, $x_3=Melones$, $x_4=Sandías$, $x_5=Nueces$, $x_6=Zanahorias$
+
+
+___Función Objetivo___
+
+$max(Z)= \$450(x_1)+ \$370(x_2)+\$280(x_3)+\$320(x_4)+\$410(x_5)+\$500(x_6)$
+
+
+___Restricciones___
+
+Si la capacidad máxima del camión es de $10 [Ton]$
+
+
+1.- $2500(x_1)+ 1800(x_2)+2100(x_3)+1850(x_4)+1650(x_5)+2100(x_6)\le10,000[kg]$
+
+
+2.- $X_i\ge0$
+
+
+3.- $x_i=int$
+
+
+___Resolviendo el problema por Programación Lineal:___
+
+```{r}
+library(lpSolve)
+fobj <- c(450, 370, 280, 320, 410, 500)  #definiendo los coeficientes de la función objetivo
+matrizderestricciones <- matrix(c(2500, 1800, 2100,  1850,  1650, 2100, 1, 1, 1, 1, 1, 1), nrow = 2, ncol=6, byrow=TRUE)    #definiendo los coeficientes de las restricciones
+matrizderestricciones
+
+
+direccion <- c("<=", ">")     #definiendo los signos de las restricciones
+valorderestriccion <- c(10000, 0) #definiendo los valores de lado izquierdo 
+
+Solution <- lp("max", fobj, matrizderestricciones, direccion, valorderestriccion, all.int = TRUE, compute.sens = TRUE  )    #Resolviendo... 
+Solution
+
+Solution$objval      #Máxima ganancia
+Solution$solution    #Coeficientes para tener la máxima ganancia 
+
+```
+
+
+
+__*Por lo tanto; las máximas ganancias serán de:    $\$$ `r Solution$objval` *__
+
+__*Y los coeficientes para cada variable sería:*__ 
+
+__*$0x_1+0x_2+0x_3+0x_4+6x_5+0x_6$*__
+
+Solamente deberían llevarse 6 cargas de nueces para maximizar las ganancias y el  peso. 
+
+
+
+
+__*Ejemplo 2*__
+
+Una oficina de correos requiere distintas cantidades de empleados de tiempo completo en diferentes días de la semana. La cantidad de empleados de tiempo completo que se requiere cada día se indican en la siguiente tabla. Las reglas del sindicato establecen que cada empleado
+de tiempo completo debe trabajar cinco días consecutivos y descansar dos días, es decir, si un empleado que trabaja de lunes a viernes, debe descansar sábado y domingo. La oficina de correos quiere cumplir con sus exigencias diarias sólo por medio de empleados de tiempo completo. Plantee un modelo para minimizar la cantidad de empleados de tiempo completo que tengan que ser contratados.
+
+```{r}
+
+#Dia <- c("# de epleados ")
+#Lunes <- c(17)
+#Martes <- c(13)
+#Miercoles <- c(15)
+#Jueves <- c(19)
+#Viernes <- c(14)
+#Sabado <- c(16)
+#Domingo <- c(11)
+
+#Tabla2 <- data.frame(rbind(Dia, Lunes, Martes, Miercoles, Jueves, Viernes, Sabado, Domingo))
+#Tabla2
+
+#matriz1 <- matrix(c("Dia", "# de empleados", "Lunes", 17, "Martes", 13, "Miercoles",  15, "Jueves", 19, "Viernes", 14, "Sabado", 16, "Domingo", 11), nrow=8, ncol=2, byrow = TRUE)
+
+#matriz1
+
+matriz2 <- matrix(c("Dia", "# de empleados", "Variables", "Lunes", 17, "x1", "Martes", 13, "x2", "Miercoles",  15,"x3", "Jueves", 19,"x4", "Viernes", 14,"x5" ,"Sabado", 16,"x6",  "Domingo", 11, "x7"), nrow=8, ncol=3, byrow = TRUE)   #matriz con las variables definida para cada estado 
+
+matriz2
+
+
+```
+
+__VARIABLES__
+
+$x_1 = Lunes$, $x_2 = Martes$, $x_3=Miercoles$, $x_4=Jueves$, $x_5=Viernes$, $x_6 = Sabaddo$, $x_7 = Domingo$
+
+1 turno: el día que comienzan a trabajar 
+
+3 turnos que comiencen el lunes, martes y miercoles 
+
+Una variable para cada día 
+
+Cantidad de trabajadores que inician por turno:$x_i$ ; $con~i:1,2,3,....7$
+
+__RESTRICCIONES__
+
+Para $x_1$ <- $x_1+0x_2+0x_3+x_4+x_5+x_6+x_7\ge17$
+
+Para $x_2$ <- $x_1+x_2+0x_3+0x_4+x_5+x_6+x_7\ge13$ 
+
+Para $x_3$ <- $x_1+x_2+x_3+0x_4+0x_5+x_6+x_7\ge15$  
+
+Para $x_4$ <- $x_1+x_2+x_3+x_4+0x_5+0x_6+x_7\ge19$  
+
+Para $x_5$ <- $x_1+x_2+x_3+x_4+x_5+0x_6+0x_7\ge14$ 
+
+Para $x_6$ <- $0x_1+x_2+x_3+x_4+x_5+x_6+0x_7\ge16$ 
+
+Para $x_7$ <- $0x_1+0x_2+x_3+x_4+x_5+x_6+x_7\ge11$    
+
+__RESTRICCIONES NO EXPLÍCITAS__
+
+$$x_i \in N $$
+$$x_i \in Z$$
+
+
+
+
+__FUNCIÓN OBJETIVO__
+
+$min(z)=x_1+x_2+x_3+x_4+x_5+x_6+x_7$
+
+
+
+___Resolviendo el problema por Programación Lineal:___
+
+```{r}
+library(lpSolve)
+fobj1 <- c(1, 1, 1, 1, 1, 1, 1)  #definiendo los coeficientes de la función objetivo
+
+row1 <- c(1,0,0,1,1,1,1)
+row2 <- c(1,1,0,0,1,1,1)
+row3 <- c(1,1,1,0,0,1,1)
+row4 <- c(1,1,1,1,0,0,1)
+row5 <- c(1,1,1,1,1,0,0)
+row6 <- c(0,1,1,1,1,1,0)
+row7 <- c(0,0,1,1,1,1,1)
+row8 <- c(1,1,1,1,1,1,1)
+  
+matrizderestricciones1 <- matrix(c(row1, row2, row3, row4, row5, row6, row7, row8), nrow = 8, ncol= 7 , byrow=TRUE)    #definiendo los coeficientes de las restricciones
+matrizderestricciones1
+
+
+direccion1 <- c(">=",">=", ">=", ">=", ">=", ">=", ">=", ">")     #definiendo los signos de las restricciones
+valorderestriccion1 <- c(17, 13, 15, 19, 14, 16, 11,0 ) #definiendo los valores de lado izquierdo 
+
+Solution1 <- lp("min", fobj1, matrizderestricciones1, direccion1, valorderestriccion1, all.int = TRUE, compute.sens = TRUE  )    #Resolviendo... 
+Solution1
+
+Solution1$objval      #Minimo dias
+Solution1$solution #Coeficientes para tener la minimos dias
+Solution$duals
+
+```
+Por lo tanto; al minimizar la cantidad de empleados tenemos un número de $23 ~empleados$
+Los coeficientes para que esto sucede deben ser : $z=7x_1+5x_2+x_3+6x_4+2x_5+2x_6+0x_7$
+Esto quiere decir que deben haber $7$ empleados el día $Lunes$, $5$ empleados el día $Martes$, $1$ empleado el día $Miercoles$, $6$ empleados el día $Jueves$, $2$ empleados el día $Viernes$,$2$ empleados el día $Sabado$ y ningún empleado el día $Domingo$.
+
+
+```{r}
+#matrix(c(1:49), nrow=7, ncol=7, byrow=TRUE)
+```
+
+__*Ejemplo 15*__
+
+Cada día los trabajadores del departamento de policía de la delegación trabajan en dos turnos de 4 horas. Las opciones de turnos son : de 4 a.m. a 8 a.m. , de 8 a.m. a medio día (12 p.m.), de medio día a 4 p.m., de 4 p.m. a 8 p.m., de 8 p.m. a medianoche, de medianoche a 4 a.m. Se requiere el siguiente número de policías para cada turno:
+
+```{r}
+matriz3 <- matrix(c("Horario", "4-8", "8-12", "12-16", "16-20", "20-00", "00-4", "#policías", 12 ,10, 6, 7, 16, 12), nrow=2 , ncol=7, byrow=TRUE)
+matriz3
+```
+
+
+A los policías que tienen dos turnos consecutivos se les paga 28 pesos la hora, a los que no tienen turnos consecutivos se les paga 25 pesos la hora. Plantee un modelo para el problema.
+
+Dos turnos consecutivos = $28 
+Sin turnos consecutivos = $25
+
+___Variables___
+
+$Turno_1=4~a~8$, $Turno_2=8~a~12$,$Turno_3=12~a~16$,$Turno_4=16~a~20$,$Turno_5=20~a~00$ y $Turno_6=00~a~4$
+
+Ahora, el $Turno_1$ y el $Turno_2$ conforman un turno consecutivo llamado $x_1$
+
+El $Turno_2$ y el $Turno_3$ conforman un turno consecutivo llamado $x_2$
+
+El $Turno_3$ y el $Turno_4$ conforman un turno consecutivo llamado $x_3$
+
+El $Turno_4$ y el $Turno_5$ conforman un turno consecutivo llamado $x_4$
+
+El $Turno_5$ y el $Turno_6$ conforman un turno consecutivo llamado $x_5$
+
+Ahora, definiendo los turnos ___NO___ consecutivos serán
+
+$Turno_1$ con $Turno_3$ conforman un turno no consecutivo llamdo $x_6$
+
+$Turno_1$ con $Turno_4$ conforman un turno no consecutivo llamdo $x_7$
+
+$Turno_1$ con $Turno_5$ conforman un turno no consecutivo llamdo $x_8$
+
+$Turno_2$ con $Turno_4$ conforman un turno no consecutivo llamdo $x_9$
+
+$Turno_2$ con $Turno_5$ conforman un turno no consecutivo llamdo $x_{10}$
+
+$Turno_2$ con $Turno_6$ conforman un turno no consecutivo llamdo $x_{11}$
+
+$Turno_3$ con $Turno_5$conforman un turno no consecutivo llamdo $x_{12}$
+
+$Turno_3$ con $Turno_6$ conforman un turno no consecutivo llamdo $x_{13}$
+
+$Turno_6$ con $Turno_1$ conforman un turno no consecutivo llamdo $x_{14}$
+
+
+___Restricciones___
+
+Para hacer las restricciones tomaremos en cuenta los turnos 
+
+En el turno 1 entran las variables $x_1$, $x_6$, $x_7$, $x_8$
+
+Para Turno 1 ... $x_1+x_6+x_7+x_8\ge12$
+
+Para Turno 2 ... $x_1+x_2+x_9+x_{10}+x_{11}\ge10$
+
+Para Turno 3 ... $x_2+x_3+x_6+x_{12}+x_{13}\ge6$
+
+Para Turno 4 ... $x_3+x_4+x_7+x_{9}+x_{14}\ge7$
+
+Para Turno 5 ... $x_4+x_5+x_8+x_{10}+x_{12}\leq16$
+
+Para Turno 6 ... $x_5+x_{11}+x_{13}+x_{14}\leq12$
+
+___Restricciones no explicitas___
+
+$$x_i \in Z^+~~~~con~i=1,2,3,...,14$$
+
+___Función objetivo___
+
+$min(Z)=28(turno~consecutivo)+25(turnopolicias~de~turno~simple)$
+
+$min(Z)=28(x_1+x_2+x_3+x_4+x_5)+25(x_6+x_7+...+x_14)$
+
+
+___Resolviendo el problema por Programación Lineal:___
+
+```{r}
+library(lpSolve)
+fobj1.1 <- c(28,28,28,28,28,25,25,25,25,25,25,25,25,25)  #definiendo los coeficientes de la función objetivo
+
+row1.1 <- c(1,0,0,0,0,1,1,1,0,0,0,0,0,0)
+row2.1 <- c(1,1,0,0,0,0,0,0,0,1,1,0,0,0)
+row3.1 <- c(0,1,1,0,0,1,0,0,0,0,0,1,1,0)
+row4.1 <- c(0,0,1,1,0,0,1,0,1,0,0,0,0,1)
+row5.1 <- c(0,0,0,1,1,0,0,1,0,1,0,1,0,0)
+row6.1 <- c(0,0,0,0,1,0,0,0,0,0,1,0,1,1)
+row7.1 <- c(1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+  
+matrizderestricciones1.1 <- matrix(c(row1.1, row2.1, row3.1, row4.1, row5.1, row6.1, row7.1), nrow = 7, ncol= 14 , byrow=TRUE)    #definiendo los coeficientes de las restricciones
+matrizderestricciones1.1
+
+
+direccion1.1 <- c(">=",">=", ">=", ">=", ">=", ">=",">")     #definiendo los signos de las restricciones
+valorderestriccion1.1 <- c(12, 10, 6, 7, 16, 12, 0) #definiendo los valores de lado izquierdo 
+
+Solution1.1 <- lp("min", fobj1.1, matrizderestricciones1.1, direccion1.1, valorderestriccion1.1, all.int = TRUE, compute.sens = TRUE  )    #Resolviendo... 
+Solution1.1
+
+Solution1.1$objval      #Minimo de costo
+Solution1.1$solution    #Coeficientes para tener el número de polícias por turno
+```
+ El número de policias que debe haber en cada variable de los turnos es 
+ $$0x_1+0x_2+0x_3+0x_4+0x_5+0x_6+4x_7+8x_8+0x_9+8x_{10}+3x_{11}+0x_{12}+6x_{13}+3x_{14}$$
+
+
+En $x_7$ deben haber 4 polícias, donde $x_7$ es un turno ___NO___ consecutivo del $Truno_1$ con el $Turno_4$ 
+
+En $x_8$ deben haber 8 polícias, , donde $x_8$ es un turno ___NO___ consecutivo del $Truno_1$ con el $Turno_5$ 
+
+En $x_10$ deben haber 8 polícias, donde $x_10$ es un turno ___NO___ consecutivo del $Truno_2$ con el $Turno_5$ 
+
+En $x_{11}$ deben haber 3 polícias, donde $x_{11}$ es un turno ___NO___ consecutivo del $Truno_2$ con el $Turno_6$ 
+
+En $x_{13}$ deben haber 6 polícias, donde $x_{13}$ es un turno ___NO___ consecutivo del $Truno_3$ con el $Turno_6$
+
+En $x_{14}$ deben haber 3 polícias, donde $x_{14}$ es un turno ___NO___ consecutivo del $Truno_6$ con el $Turno_1$ 
+
+
+
+___Ejemplo 5 ESTA INCOMPLETO, FALTAN RESTRICCIONES___
+
+Una empresa de refinación produce tres tipos de gasolinas (gas 1, gas 2 y gas 3). Cada tipo se obtiene a partir de la mezcla de tres tipos de petróleo crudo (c1, c2 y c3). El precio de venta por barril de gasolina y el precio de compra por barril de crudo se proporcionan en la siguiente tabla. La empresa tiene presupuesto para comprar 5000 barriles de cada tipo de crudo. Cada tipo de gasolina difiere en la cantidad de octano y en la de azufre que se usa para su elaboración. El crudo mezclado para producir la gasolina 1 debe tener por lo menos un índice de octano menor a 10, y cuando mucho 1% de azufre. La mezcla de crudos para producir la gasolina 2 debe contener por lo menos un índice de 8 de octano, y cuando mucho un 2% de azufre. Para la gasolina 3 la mezcla de crudos debe contener por lo menos un índice de 6 presentan en la tabla correspondiente. A la refinería le cuesta 4 dólares en transformar un barril de crudo en gasolina y tiene una capacidad de producir 14000 barriles diarios. Las demandas de sus clientes se muestran en la tabla, aunque la empresa también anuncia sus productos para generar más ventas. Por lo que cada dólar que invierte en anunciarse genera un incremento de 10 barriles diarios en ventas de ese producto. Por ejemplo, si la empresa decide invertir 20 dólares en anunciar la gasolina 2, tendrá un incremente de 20(10)=200 barriles diarios. Plantee un modelo que le ayude a maximizar sus utilidades.
+
+
+```{r}
+matriz4 <- matrix(c("Gas", "Precio Venta", "Demanda", "Crudo", "Precio compra",1, 70, 3000, 1, 45, 2, 60, 2000, 2, 35, 3, 50, 1000, 3, 25 ), nrow=4, ncol=5, byrow=TRUE)
+
+matriz4
+
+matriz5 <- matrix(c("Crudo", "Octanos", "Azufre",1, 12, 0.5, 2, 6, 2.0, 3, 8, 3.0), nrow=4, ncol=3, byrow=TRUE )
+
+matriz5 
+```
+
+$X_{11}$ cantidad de crudo 1 para producir gasolina 1
+
+$X_{12}$ cantidad de crudo 1 para producir gasolina 2
+
+$X_{13}$ cantidad de crudo 1 para producir gasolina 3
+
+$X_{21}$ cantidad de crudo 2 para producir gasolina 1
+
+$X_{22}$ cantidad de crudo 2 para producir gasolina 2
+
+$X_{23}$ cantidad de crudo 2 para producir gasolina 3
+
+$X_{31}$ cantidad de crudo 3 para producir gasolina 1
+
+$X_{32}$ cantidad de crudo 3 para producir gasolina 2
+
+$X_{33}$ cantidad de crudo 3 para producir gasolina 3
+
+___Función onjetivo___
+
+$Max(z)=(70-4)(x_{11}+x_{21}+x_{31})+(60-4)(x_{12}+x_{22}+
+x_{32})+(50-4)(x_{13}+x_{23}+x_{33}))-45(x_{11}+x_{12}+x_{13})
+-35(x_{21}+x_{22}+x_{23})-25(x_{31}+x_{32}+x_{33})-P_1(x_{11}
++x_{12}+x_{13})-P_2(x_{21}+x_{22}+x_{23})-P_3(x_{31}+x_{32}+x_{33})$
+
+___Restricciones___
+
+$i)$ Capacidad de compra:
+
+$x_{11}+x_{22}+x_{13}\le5000$
+
+$x_{21}+x_{22}+x_{23}\le5000$
+
+$x_{31}+x_{32}+x_{33}\le5000$
+
+$ii)$ Octano: 
+
+  $ii.1)$ Gasolina 1
+
+$\frac{12x_{11}+6x_{21}+8x_{31}}{x_{11}+x_{21}+x_{31}}\ge10$
+
+$12x_{11}+6x_{21}+8x_{31}\ge10(x_{11}+x_{21}+x_{31})$
+
+$(2x_{11}-4x_{21}-2x_{31})\ge0$
+
+ $ii.2)$ Gasolina 2
+ 
+ $\frac{12x_{12}+6x_{22}+8x_{32}}{x_{12}+x_{22}+x_{32}}\ge8$
+ 
+ $12x_{12}+6x_{22}+8x_{32}\ge8(x_{12}+x_{22}+x_{32})$
+ 
+ $4x_{12}-2x_{22}\ge0$
+
+  $ii.3)$ Gasolina 3 
+  
+$\frac{12x_{13}+6x_{23}+8x_{33}}{x_{13}+x_{23}+x_{33}}\ge6$
+
+$12x_{13}+6x_{23}+8x_{33}\ge6(x_{13}+x_{23}+x_{33})$
+  
+$6x_{13}+2x_{33}\ge0$
+
+  
+$iii)$ Azufre: 
+
+$iii.1)$ Gasolina 1
+
+$\frac{0.5x_{11}+2x_{21}+3x_{31}}{x_{11}+x_{21}+x_{31}}\le1$
+
+$0.5x_{11}+2x_{21}+3x_{31}\le1(x_{11}+x_{21}+x_{31})$
+
+$-0.5x_{11}+x_{21}+2x_{31}\le0$
+
+$iii.2)$ Gasolina 2
+
+$\frac{0.5x_{12}+2x_{22}+3x_{32}}{x_{12}+x_{22}+x_{32}}\le2$
+
+$0.5x_{12}+2x_{22}+3x_{32}\le2(x_{12}+x_{22}+x_{32})$
+
+Aqui falta una restriccion
+
+$iii.3)$ Gasolina 3
+
+Aqui faltan 3 restricciones 
+
+$iv)$ Infraestructura:
+
+$(x_{11}+x_{21}+x_{31})+(x_{12}+x_{22}+x_{32})+(x_{13}+x_{23}+x_{33})\le14000$
+
+$v)$ Demanda: 
+
+v.gas1)
+$(x_{11}+x_{21}+x_{31})\ge3000+10P_1$
+
+v.gas2)
+$(x_{12}+x_{22}+x_{32})\ge2000+P_2$
+
+v.gas3) 
+$(x_{13}+x_{23}+x_{33})\ge1000+P_3$
+
+___Restricciones no explícitas___
+
+$X_{ij}\ge0...con~i=1,2,3~y~j=1,2,3$
+
+
+
+___EJERCICIO 8 ___
+
+8.-Un supermercado puede poner en sus estantes tres nuevos productos, que le ocuparían tres, cuatro, y cinco estantes, respectivamente, generando 600, 700 y 850 pesos de ingresos adicionales, respectivamente. Si el supermercado cuenta con 200 estantes para colocar estos productos, ¿cuántos productos de cada tipo deberá colocar de tal modo que maximice sus ingresos adicionales?
+
+___Variables de decisión___
+
+Prodcuto 1 = $x_1$, Prodcuto 2 = $x_2$, Prodcuto 3 = $x_3$
+
+___Función Objetivo___
+
+$$Máx(z)=\$600x_1+\$700x_2+\$850x_3$$
+___Restricciones explícitas___
+
+$$3x_1+4x_2+5x_3\le200~estantes$$
+___Restricciones implicitas___
+
+$$x_{1,2,3}\in Z^+$$
+
+```{r}
+library(lpSolve)
+fobj8 <- c(600, 700, 850)  #definiendo los coeficientes de la función objetivo
+matrizderestricciones8 <- matrix( c(3, 4, 5, 1, 1, 1), ncol=3, nrow=2, byrow=TRUE)   #definiendo los coeficientes de las restricciones
+matrizderestricciones8
+
+
+direccion8 <- c("<=", ">")     #definiendo los signos de las restricciones
+valorderestriccion8 <- c(200, 0) #definiendo los valores de lado izquierdo 
+
+Solution8 <- lp("max", fobj8, matrizderestricciones8, direccion8, valorderestriccion8, all.int = TRUE, compute.sens = TRUE  )    #Resolviendo... 
+Solution8
+
+Solution8$objval      #Máxima ganancia
+Solution8$solution    #Coeficientes para tener la máxima ganancia 
+```
+La cantidad máxima de ingresos será  $\$39850$ con los coeficientes: 
+
+$$65x_1+0x_2+x_3$$
+
+Por lo tanto deberán haber 65 prodcutos del tipo1, 0 productos del tipo 2 y 1 un producto del tipo 3 
+
+___Ejercicio 9  ___
+
+9. Una radiodifusora cuenta con tres horas de tiempo libre para programar comerciales. Hay tres tipos de comerciales, los cuales toman 3, 2 y 1.5 minutos cada uno, generando un ingreso de 1000, 800 y 650 pesos, respectivamente. ¿Cuántos comerciales de cada tipo deberá programar de manera que sus ingresos por este concepto se maximicen?
+
+___Variables de decisión___
+
+$x_1$ = tipo 1 de comercial
+
+$x_2$ = tipo 2 de comercial
+
+$x_3$ = tipo 3 de comercial
+
+___Función objetivo___
+
+$$Máx(z)= 1,000x_1+800x_2+650x_3$$
+___Restricciones explícitas___
+
+$$3x_1+2x_2+1.5x_3\le180~ minutos$$
+___Restricciones implicitas___
+
+$$x_{1,2}\in R^+$$
+```{r}
+library(lpSolve)
+fobj9 <- c(1000, 800, 650)  #definiendo los coeficientes de la función objetivo
+matrizderestricciones9 <- matrix(c(3, 2, 1.5, 1, 1, 1), ncol=3, nrow=2, byrow=TRUE )   #definiendo los coeficientes de las restricciones
+matrizderestricciones9
+
+
+direccion9 <- c("<=", ">")     #definiendo los signos de las restricciones
+valorderestriccion9 <- c(180, 0) #definiendo los valores de lado izquierdo 
+
+Solution9 <- lp("max", fobj9, matrizderestricciones9, direccion9, valorderestriccion9, all.int = FALSE, compute.sens = TRUE  )    #Resolviendo... 
+Solution9
+
+Solution9$objval      #Máxima ganancia
+Solution9$solution    #Coeficientes para tener la máxima ganancia 
+```
+
+La máxima ganancia sera de $78,000 con los coeficientes: 
+
+$$0x_1+0x_2+120x_3$$
+Por lo tanto la emisora de radio solamente deberá programar 120 comerciales del tipo 3 durante las tres horas disponibles que tiene para máximizar sus ganancias. 
+
+___Ejercicio 10___
+
+10.- Un taller de herrería busca mejorar sus utilidades fabricando dos tipos diferentes de puertas. El taller cuenta con 150 Kg de fierro y 70 horas de tiempo disponible. La puerta tipo 1 requiere de 10 kg de fierro y 6 horas de tiempo dando una utilidad de $2500, mientras que el
+segundo tipo necesita e 12 kg de fierro y 7 horas de tiempo, con una utilidad de $3000. ¿Cuántas puertas de cada tipo deberá fabricar el taller de manera que maximice sus utilidades?
+
+___Variables de decisión___
+
+$x_1=$ tipo 1 de puerta, $x_2=$ tipo 2 de puerta
+
+___Función Objetivo___
+
+$$Máx(z)=\$2500x_1+\$3000x_2$$
+___Restricciones explícitas___
+
+$10kg(x_1)+12kg(x_2)\le150kg$
+
+$6hr(x_1)+7hr(x_2)\le70hr$
+
+___Restricciones implicitas___
+
+$x_{1,2}\in Z^+$
+
+```{r}
+library(lpSolve)
+fobj10 <- c(2500, 3000)  #definiendo los coeficientes de la función objetivo
+matrizderestricciones10 <- matrix(c(10, 12, 6, 7, 1, 1), ncol=2, nrow=3, byrow=TRUE )   #definiendo los coeficientes de las restricciones
+matrizderestricciones10
+
+
+direccion10<- c("<=", ">", ">")     #definiendo los signos de las restricciones
+valorderestriccion10 <- c(150, 70, 0) #definiendo los valores de lado izquierdo 
+
+Solution10 <- lp("max", fobj10, matrizderestricciones10, direccion10, valorderestriccion10, all.int = TRUE, compute.sens = TRUE  )    #Resolviendo... 
+Solution10
+
+Solution10$objval      #Máxima ganancia
+Solution10$solution    #Coeficientes para tener la máxima ganancia 
+```
+Las máximas ganancias podrían ser hasta $37,500 con los siguientes coeficientes: 
+
+$15x_1+0x_2$
+
+Por lo tanto debería producirse 15 puertas del tipo 1 para máximizar las utilidades. 
+
+___Ejercicio 11___
+
+11.-Una compañía de materiales se dedica al acarreo de gravas y arenas para la construcción y cuenta con cinco bancos de material diferentes, cuyos costos por acarreo y características granulométricas de los materiales son los siguientes:
+
+```{r}
+matriz_ejemplo <- matrix(c("Banco", "Cantidad", "Costo", "1/2", "1/4", "Finos", 1, 1500, 220, 40.2, 40.8, 19, 2, 2300, 155, 32.8, 33.7, 33.5, 3, 3200, 175, 30, 35, 35, 4, 4500, 130, 42, 28, 30, 5, 5200, 150, 50, 20.1, 29.9), nrow=6, ncol=6, byrow=TRUE)
+matriz_ejemplo
+```
+
+Si la compañía ha recibido un pedido de material por una cantidad de 6500 ton, que contenga como mínimo 34% de materia ½ “ , 30% ¼ “ , y como máximo 30% de finos, ¿cuánto deberá acarrear de cada banco para satisfacer al cliente a un costo total mínimo por el acarreo?
+
+___Variables de decisión___
+
+$x_1=Banco~1$, $x_2=Banco~2$, $x_3=Banco~3$, $x_4=Banco~4$, $x_5=Banco~5$
+
+___Función objetivo___
+
+$$Min(z)=\$220x_1+\$155x_2+\$175x_3\$130x_4+\$150x_5$$
+
+__Restricciones explícitas___
+
+Material $\frac{1}{2}$
+        $$40.2x_1+32.8x_2+30x_3+40x_4+50x_5\ge30$$
+Material $\frac{1}{4}$
+      $$40.8x_1+33.7x_2+35x_3+28x_4+20.1x_5\ge30$$
+Finos 
+     $$19x_1+33.5x_2+35x_3+30x_4+29.9x_5\le29$$
+
+___Restricciones implicitas___
+
+$$x_{1,2,3,4,5}\in R^+$$
+```{r}
+library(lpSolve)
+fobj11 <- c(220, 155, 175, 130, 150)  #definiendo los coeficientes de la función objetivo
+row11.1 <- c(40.2, 32.8, 30, 42, 50) 
+row11.2 <- c(40.8, 33.7, 35, 28, 20.1)
+row11.3 <- c(19, 33.5, 35, 30, 29.9)
+row11.4 <- c(1,1,1,1,1)
+  
+matrizderestricciones11 <- matrix( c(row11.1, row11.2, row11.3, row11.4), ncol=5, nrow=4, byrow=TRUE)   #definiendo los coeficientes de las restricciones
+matrizderestricciones11
+
+
+direccion11 <- c(">=", ">=", "<=", ">")     #definiendo los signos de las restricciones
+valorderestriccion11 <- c(200, 0) #definiendo los valores de lado izquierdo 
+
+Solution11 <- lp("min", fobj11, matrizderestricciones11, direccion11, valorderestriccion11, all.int = FALSE, compute.sens = TRUE  )    #Resolviendo... 
+Solution11
+
+Solution11$objval      #Minimo costo
+Solution11$solution    #Coeficientes para minimizar
+```
+Los coeficientes para minimizar el costo total son 
+$$0x_1+0x_2+0x_3+0x_4+4x_5$$
+
+Por lo tanto debería acarrear solamente 4 del banco de 5 para minimazar el costo a $600
+
+___Ejemplo 12___
+
+12.-Un supermercado puede poner en sus estantes tres nuevos productos, que le ocuparían tres, cuatro, y cinco estantes, respectivamente, generando 600, 700 y 850 pesos de ingresos adicionales, respectivamente. Si el supermercado cuenta con 200 estantes para colocar estos productos, ¿cuántos productos de cada tipo deberá colocar de tal modo que maximice sus ingresos adicionales?
+
+___Variables de decisión___
+
+Prodcuto 1 = $x_1$, Prodcuto 2 = $x_2$, Prodcuto 3 = $x_3$
+
+___Función Objetivo___
+
+$$Máx(z)=\$600x_1+\$700x_2+\$850x_3$$
+
+___Restricciones explícitas___
+
+$$3x_1+4x_2+5x_3\le200~estantes$$
+___Restricciones implicitas___
+
+$$x_{1,2,3}\in Z^+$$
+
+```{r}
+library(lpSolve)
+fobj8 <- c(600, 700, 850)  #definiendo los coeficientes de la función objetivo
+matrizderestricciones8 <- matrix( c(3, 4, 5, 1, 1, 1), ncol=3, nrow=2, byrow=TRUE)   #definiendo los coeficientes de las restricciones
+matrizderestricciones8
+
+
+direccion8 <- c("<=", ">")     #definiendo los signos de las restricciones
+valorderestriccion8 <- c(200, 0) #definiendo los valores de lado izquierdo 
+
+Solution8 <- lp("max", fobj8, matrizderestricciones8, direccion8, valorderestriccion8, all.int = TRUE, compute.sens = TRUE  )    #Resolviendo... 
+Solution8
+
+Solution8$objval      #Máxima ganancia
+Solution8$solution    #Coeficientes para tener la máxima ganancia 
+```
+La cantidad máxima de ingresos será  $\$39850$ con los coeficientes: 
+
+$$65x_1+0x_2+x_3$$
+
+Por lo tanto deberán haber 65 prodcutos del tipo1, 0 productos del tipo 2 y 1 un producto del tipo 3 
+
+
+
+
+
+

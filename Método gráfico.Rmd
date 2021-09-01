@@ -1,0 +1,87 @@
+---
+title: "Método grafico"
+author: "DIMAS"
+date: "11/11/2020"
+output:
+  pdf_document: default
+  html_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+## 1.- Contruyendo el modelo
+
+Variables de decisión 
+
+$$x_1=Cantidad ~de~ trenes~ producidos$$
+
+$$x_2= cantidad ~de~ soldados~producidos $$
+Función Objetivo
+
+$$max(Z)= (210-90-100)x_1+(270-100-140)x_2$$
+$$max(Z)=20x_1+30x_2$$
+
+Sujeto a: 
+
+acabado (i)...    $x_1+2x_2\le100$
+
+carpintería (ii)... $x_1+x_2\le80$
+
+demanda (iii)... $x_2\le40$
+
+$x_1, x_2\ge0$
+
+
+## 2.- Construir un sistema de ejes coordenadas y graficar las restricciones
+ 
+- Para (i)  
+
+$x_1+2x_2\le100$
+
+si $x_1=0$  entonces $x_2=50$      A(0,50)
+
+si $x_2=0$  entonces $x_1=100$     B(100,0)
+
+- para (ii)
+
+$x_1+x_2\le80$
+
+si $x_1=0$ entonces $x_2=80$   C(0,80)
+
+si $x_2=$ entonces  $x_1= 80$   D(80,0)
+
+- para (iii)
+
+$x_2\le40$    E(0,40)
+
+## 3.-Graficando las restricciones y modelos...
+
+![](F:/IDO/rf.jpg)
+
+___La región pintada de azul es la región factible___
+
+## 4.- Evaluar los vertices de la región factible en la función objetivo
+
+$$max(Z)= 20x_1+30x_2$$
+
+Vertices: $(0,40),(20,40),(60,20),(80,0)$
+
+$$(0,40)->~20(0)+30(40)=\$1,200$$
+
+$$(20,40)->~20(20)+30(40)=\$1,600$$
+
+$$(60,20)->~20(60)+30(20)=\$1,800$$
+
+$$(80,0)->~20(80)+30(0)=\$1,600$$
+
+## Conclusiones 
+
+La función obejtivo $Z$ se maximiza con 60 trenes y 20 soldados, obteniendo una ganancia de $\$1,800$
+
+$$Z=1,800$$
+
+$$x_1=60 trenes$$
+
+$$x_2=20 soldados$$
+
+$1,800
